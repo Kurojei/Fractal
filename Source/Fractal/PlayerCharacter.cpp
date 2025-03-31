@@ -4,6 +4,7 @@
 #include <Kismet/KismetMathLibrary.h>
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "HealthComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -19,6 +20,9 @@ APlayerCharacter::APlayerCharacter()
 	cam->bUsePawnControlRotation = true;
 
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
+
+	healthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	healthComponent->onDeath.AddDynamic(this, &APlayerCharacter::OnDeath);
 }
 
 void APlayerCharacter::BeginPlay()
@@ -54,7 +58,6 @@ void APlayerCharacter::Move(const FInputActionValue& value)
 	FVector2D moveVector = value.Get<FVector2D>();
 	AddMovementInput(GetActorForwardVector(), moveVector.Y);
 	AddMovementInput(GetActorRightVector(), moveVector.X);
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green, FString::Printf(TEXT("Move Vector: X=%f, Y=%f"), moveVector.X, moveVector.Y));
 }
 
 void APlayerCharacter::Look(const FInputActionValue& value)
@@ -62,4 +65,9 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 	FVector2D lookVector = value.Get<FVector2D>();
 	AddControllerYawInput(lookVector.X);
 	AddControllerPitchInput(-lookVector.Y);
+}
+
+void APlayerCharacter::OnDeath()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Dead"));
 }

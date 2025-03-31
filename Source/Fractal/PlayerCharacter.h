@@ -19,6 +19,10 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
+	class UHealthComponent* GetHealthComponent() { return healthComponent; };
+
+	UFUNCTION()
+	void OnDeath();
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -38,4 +42,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UInputAction* lookAction;
+
+private:
+	class UHealthComponent* healthComponent;
 };
