@@ -7,6 +7,8 @@
 #include "InputMappingContext.h"
 #include "PlayerCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAiming);
+
 UCLASS()
 class FRACTAL_API APlayerCharacter : public ACharacter
 {
@@ -25,6 +27,9 @@ public:
 	void OnDeath();
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnAiming onAiming;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCameraComponent* cam;
 
