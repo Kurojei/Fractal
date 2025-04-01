@@ -5,9 +5,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Target.h"
 
-ABaseWeapon::ABaseWeapon() {
+ABaseWeapon::ABaseWeapon() 
+{
 	PrimaryActorTick.bCanEverTick = true;
+
 	owner = Cast<APlayerCharacter>(GetOwner());
 	gunMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
 	gunMesh->SetupAttachment(RootComponent);
@@ -17,7 +20,8 @@ ABaseWeapon::ABaseWeapon() {
 	muzzleFlash->SetupAttachment(gunMesh);
 }
 
-void ABaseWeapon::Fire() {
+void ABaseWeapon::Fire() 
+{
 	if (bIsReloading) return;
 	if (currentMagAmmo == 0) { Reload(); return; }
 	if (!bIsFiring) { bIsFiring = true; }
@@ -33,17 +37,25 @@ void ABaseWeapon::Fire() {
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(owner);
 	FHitResult outHit;
-	if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, params)) {
-		
+	if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, params)) 
+	{
+		if (ATarget* target = Cast<ATarget>(outHit.GetActor()))
+		{
+			target->Hit();
+			audioComponent->SetSound(hitmarker);
+			audioComponent->Play();
+		}
 	}
 
 	float decalSize = FMath::FRandRange(1.5f, 7.f);
 	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), bulletDecal, FVector(decalSize, decalSize, decalSize), outHit.Location, outHit.ImpactNormal.Rotation() * -1, 100.f);
 
-	if (fullAuto && bIsFiring) {
+	if (fullAuto && bIsFiring) 
+	{
 		GetWorld()->GetTimerManager().SetTimer(fullAutoHandle, this, &ABaseWeapon::Fire, fireRate, false);
 	}
-	else {
+	else 
+	{
 		bIsFiring = false;
 		muzzleFlash->Deactivate();
 		owner->GetMesh()->GetAnimInstance()->StopAllMontages(0.1);
@@ -51,11 +63,14 @@ void ABaseWeapon::Fire() {
 	}
 }
 
-void ABaseWeapon::Reload() {
-	if (currentStockAmmo > 0 && currentMagAmmo < maxMagAmmo && !bIsFiring) {
+void ABaseWeapon::Reload() 
+{
+	if (currentStockAmmo > 0 && currentMagAmmo < maxMagAmmo && !bIsFiring) 
+	{
 		bIsReloading = true;
 
-		auto refreshAmmoUI = [&]() {
+		auto refreshAmmoUI = [&]() 
+		{
 			int amountToAdd = maxMagAmmo - currentMagAmmo;
 			if (currentStockAmmo >= amountToAdd) {
 				currentStockAmmo -= amountToAdd;
