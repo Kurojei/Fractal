@@ -11,15 +11,17 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	springArm->SetupAttachment(GetMesh(), FName("CameraSocket"));
-	springArm->bUsePawnControlRotation = true;
+	springArm->SetupAttachment(GetMesh(), FName("cameraSocket"));
 	springArm->TargetArmLength = 0;
 
 	cam = CreateDefaultSubobject<UCameraComponent>(TEXT("Cam"));
 	cam->SetupAttachment(springArm, FName("SpringEndpoint"));
-	cam->bUsePawnControlRotation = true;
 
-	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
+	gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
+	gun->SetupAttachment(GetMesh(), FName("gunSocket"));
+
+	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
+	GetMesh()->SetupAttachment(RootComponent);
 
 	healthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	healthComponent->onDeath.AddDynamic(this, &APlayerCharacter::OnDeath);
@@ -64,7 +66,11 @@ void APlayerCharacter::Look(const FInputActionValue& value)
 {
 	FVector2D lookVector = value.Get<FVector2D>();
 	AddControllerYawInput(lookVector.X);
-	AddControllerPitchInput(-lookVector.Y);
+
+	FRotator currentRotation = GetMesh()->GetRelativeRotation();
+	float newPitch = currentRotation.Pitch + (lookVector.Y * lookSensitivity);
+	newPitch = FMath::Clamp(newPitch, -70.f, 70.f);
+	GetMesh()->SetRelativeRotation(FRotator(newPitch, currentRotation.Yaw, currentRotation.Roll));
 }
 
 void APlayerCharacter::OnDeath()

@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "InputMappingContext.h"
+#include "BaseWeapon.h"
 #include "PlayerCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAiming);
@@ -27,6 +28,9 @@ public:
 	void OnDeath();
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USkeletalMeshComponent* gun;
+
 	UPROPERTY(BlueprintAssignable)
 	FOnAiming onAiming;
 
@@ -48,6 +52,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UInputAction* lookAction;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int lookSensitivity = 2;
+
 private:
+	TArray<ABaseWeapon> guns;
 	class UHealthComponent* healthComponent;
 };
