@@ -52,7 +52,23 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		inputComponent->BindAction(jumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		inputComponent->BindAction(moveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		inputComponent->BindAction(lookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
+		inputComponent->BindAction(aimAction, ETriggerEvent::Started, this, &APlayerCharacter::StartAiming);
+		inputComponent->BindAction(aimAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopAiming);
 	}
+}
+
+void APlayerCharacter::StartAiming() 
+{
+	isAiming = true;
+	GetCharacterMovement()->MaxWalkSpeed = 250.f;
+
+}
+
+void APlayerCharacter::StopAiming()
+{
+	isAiming = false;
+	GetCharacterMovement()->MaxWalkSpeed = 350.f;
+
 }
 
 void APlayerCharacter::Move(const FInputActionValue& value)
@@ -65,7 +81,7 @@ void APlayerCharacter::Move(const FInputActionValue& value)
 void APlayerCharacter::Look(const FInputActionValue& value)
 {
 	FVector2D lookVector = value.Get<FVector2D>();
-	AddControllerYawInput(lookVector.X);
+	AddControllerYawInput(lookVector.X * lookSensitivity);
 
 	FRotator currentRotation = GetMesh()->GetRelativeRotation();
 	float newPitch = currentRotation.Pitch + (lookVector.Y * lookSensitivity);

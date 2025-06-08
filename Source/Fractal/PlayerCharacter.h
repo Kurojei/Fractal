@@ -8,8 +8,6 @@
 #include "BaseWeapon.h"
 #include "PlayerCharacter.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAiming);
-
 UCLASS()
 class FRACTAL_API APlayerCharacter : public ACharacter
 {
@@ -20,9 +18,17 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void StartAiming();
+	void StopAiming();
+
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
+
 	class UHealthComponent* GetHealthComponent() { return healthComponent; };
+
+	UFUNCTION(BlueprintCallable)
+	bool GetIsAiming() { return isAiming; };
 
 	UFUNCTION()
 	void OnDeath();
@@ -31,9 +37,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* gun;
 
-	UPROPERTY(BlueprintAssignable)
-	FOnAiming onAiming;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCameraComponent* cam;
 
@@ -41,21 +44,25 @@ public:
 	USpringArmComponent* springArm;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UInputMappingContext* mappingContext;
+	UInputMappingContext* mappingContext = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UInputAction* jumpAction;
+	UInputAction* jumpAction = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UInputAction* moveAction;
+	UInputAction* moveAction = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UInputAction* lookAction;
+	UInputAction* lookAction = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	int lookSensitivity = 2;
+	UInputAction* aimAction = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float lookSensitivity = 1;
 
 private:
+	bool isAiming = false;
 	TArray<ABaseWeapon> guns;
 	class UHealthComponent* healthComponent;
 };
