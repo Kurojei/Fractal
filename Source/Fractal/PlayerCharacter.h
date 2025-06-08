@@ -21,6 +21,7 @@ public:
 
 	void StartAiming();
 	void StopAiming();
+	void SpawnAndAttachWeapon(TSubclassOf<ABaseWeapon> weaponToSpawn);
 
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
@@ -35,7 +36,10 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USkeletalMeshComponent* gun;
+	TSubclassOf<ABaseWeapon> startingWeapon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	ABaseWeapon* currentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCameraComponent* cam;
@@ -59,10 +63,13 @@ public:
 	UInputAction* aimAction = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UInputAction* fireAction = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float lookSensitivity = 1;
 
 private:
 	bool isAiming = false;
-	TArray<ABaseWeapon> guns;
+	TArray<ABaseWeapon*> weapons;
 	class UHealthComponent* healthComponent;
 };

@@ -17,9 +17,6 @@ APlayerCharacter::APlayerCharacter()
 	cam = CreateDefaultSubobject<UCameraComponent>(TEXT("Cam"));
 	cam->SetupAttachment(springArm, FName("SpringEndpoint"));
 
-	gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun"));
-	gun->SetupAttachment(GetMesh(), FName("gunSocket"));
-
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
 	GetMesh()->SetupAttachment(RootComponent);
 
@@ -34,6 +31,22 @@ void APlayerCharacter::BeginPlay()
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 	InputSubsystem->AddMappingContext(mappingContext, 0);
+
+	SpawnAndAttachWeapon(startingWeapon);
+}
+
+void APlayerCharacter::SpawnAndAttachWeapon(TSubclassOf<ABaseWeapon> weaponToSpawn) 
+{
+	if (weaponToSpawn) 
+	{
+		if (ABaseWeapon* spawnedWeapon = GetWorld()->SpawnActor<ABaseWeapon>(weaponToSpawn))
+		{
+			spawnedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("gunSocket"));
+			spawnedWeapon->SetActorEnableCollision(false);
+			weapons.Add(spawnedWeapon);
+			currentWeapon = spawnedWeapon;
+		}
+	}
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -54,6 +67,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		inputComponent->BindAction(lookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		inputComponent->BindAction(aimAction, ETriggerEvent::Started, this, &APlayerCharacter::StartAiming);
 		inputComponent->BindAction(aimAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopAiming);
+		//inputComponent->BindAction(fireAction, ETriggerEvent::Completed, this, );
 	}
 }
 
