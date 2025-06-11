@@ -21,12 +21,16 @@ public:
 
 	void StartAiming();
 	void StopAiming();
+	void Fire();
+	void StopFire();
+	void Reload();
 	void SpawnAndAttachWeapon(TSubclassOf<ABaseWeapon> weaponToSpawn);
 
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
 
 	class UHealthComponent* GetHealthComponent() { return healthComponent; };
+	class UCameraComponent* GetCameraComponent() { return cam; };
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsAiming() { return isAiming; };
@@ -36,16 +40,10 @@ public:
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<ABaseWeapon> startingWeapon;
+	TSubclassOf<ABaseWeapon> startingWeapon = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	ABaseWeapon* currentWeapon;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UCameraComponent* cam;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USpringArmComponent* springArm;
+	USpringArmComponent* springArm = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UInputMappingContext* mappingContext = nullptr;
@@ -66,10 +64,15 @@ public:
 	UInputAction* fireAction = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UInputAction* reloadAction = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float lookSensitivity = 1;
 
 private:
 	bool isAiming = false;
 	TArray<ABaseWeapon*> weapons;
-	class UHealthComponent* healthComponent;
+	ABaseWeapon* currentWeapon = nullptr;
+	UCameraComponent* cam = nullptr;
+	class UHealthComponent* healthComponent = nullptr;
 };

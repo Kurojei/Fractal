@@ -43,6 +43,7 @@ void APlayerCharacter::SpawnAndAttachWeapon(TSubclassOf<ABaseWeapon> weaponToSpa
 		{
 			spawnedWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName("gunSocket"));
 			spawnedWeapon->SetActorEnableCollision(false);
+			spawnedWeapon->SetOwner(this);
 			weapons.Add(spawnedWeapon);
 			currentWeapon = spawnedWeapon;
 		}
@@ -67,7 +68,31 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		inputComponent->BindAction(lookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		inputComponent->BindAction(aimAction, ETriggerEvent::Started, this, &APlayerCharacter::StartAiming);
 		inputComponent->BindAction(aimAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopAiming);
-		//inputComponent->BindAction(fireAction, ETriggerEvent::Completed, this, );
+		inputComponent->BindAction(fireAction, ETriggerEvent::Started, this, &APlayerCharacter::Fire);
+		inputComponent->BindAction(fireAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopFire);
+		inputComponent->BindAction(reloadAction, ETriggerEvent::Started, this, &APlayerCharacter::Reload);
+		//inputComponent->BindAction(reloadAction, ETriggerEvent::Started, this, );
+	}
+}
+
+void APlayerCharacter::Fire()
+{
+	if (currentWeapon) {
+		currentWeapon->Fire();
+	}
+}
+
+void APlayerCharacter::StopFire()
+{
+	if (currentWeapon) {
+		currentWeapon->StopFire();
+	}
+}
+
+void APlayerCharacter::Reload()
+{
+	if (currentWeapon) {
+		currentWeapon->Reload();
 	}
 }
 

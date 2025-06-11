@@ -18,6 +18,7 @@ class FRACTAL_API ABaseWeapon : public AActor
 public:
 	ABaseWeapon();
 	void Fire();
+	void StopFire();
 	void Reload();
 
 public:
@@ -25,40 +26,40 @@ public:
 	FOnAmmoChanged onAmmoChanged;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USkeletalMeshComponent* armMesh;
+	class UNiagaraComponent* muzzleFlash = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UNiagaraComponent* muzzleFlash;
+	USkeletalMeshComponent* gunMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USkeletalMeshComponent* gunMesh;
+	UMaterialInterface* bulletDecal = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UMaterialInterface* bulletDecal;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTexture2D* gunSilouhette;
+	UTexture2D* gunSilouhette = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FName gunName = "";
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* gunFire;
+	UAnimMontage* gunFire = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* armFire;
+	UAnimMontage* armFire = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* gunReload;
+	UAnimMontage* armAimFire = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* armReload;
+	UAnimMontage* gunReload = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* equip;
+	UAnimMontage* armReload = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UAnimMontage* equip = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USoundCue* hitmarker;
+	USoundCue* hitmarker = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool fullAuto = false;
@@ -67,10 +68,10 @@ public:
 	float fireRate = 0.2;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float maxStockAmmo;
+	float maxStockAmmo = 32;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float maxMagAmmo;
+	float maxMagAmmo = 8;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float currentStockAmmo = 32;
@@ -85,11 +86,8 @@ public:
 	float gunDamage = 20.f;
 
 private:
-	class APlayerCharacter* owner;
-	bool bIsReloading = false;
-	bool bIsFiring = false;
-	float hitAmount = 10.f;
-	FTimerHandle fullAutoHandle;
-	FTimerHandle reloadHandle;
-	UAudioComponent* audioComponent;
+	bool isReloading = false;
+	bool isFiring = false;
+	FTimerHandle timerHandle;
+	UAudioComponent* audioComponent = nullptr;
 };
