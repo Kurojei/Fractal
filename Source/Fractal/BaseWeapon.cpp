@@ -59,14 +59,8 @@ void ABaseWeapon::Fire()
 	float decalSize = FMath::FRandRange(1.5f, 7.f);
 	//UGameplayStatics::SpawnDecalAtLocation(GetWorld(), bulletDecal, FVector(decalSize, decalSize, decalSize), outHit.Location, outHit.ImpactNormal.Rotation() * -1, 100.f);
 
-	auto tryFire = [&]() {
-		TryFire();
-	};
-
 	if (fullAuto) {
-		FTimerDelegate TimerDel;
-		TimerDel.BindUFunction(this, FName("TryFire"));
-		GetWorld()->GetTimerManager().SetTimer(timerHandle, TimerDel, fireRate, true);
+		GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &ABaseWeapon::TryFire, fireRate, true);
 	} 
 }
 
