@@ -18,15 +18,15 @@ class FRACTAL_API ABaseWeapon : public AActor
 public:
 	ABaseWeapon();
 	void Fire();
-	void StopFire();
 	void Reload();
+	void SetIsFiring(bool firing) { isFiring = firing; };
+
+	UFUNCTION()
+	void TryFire();
 
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAmmoChanged onAmmoChanged;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UNiagaraComponent* muzzleFlash = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* gunMesh = nullptr;
@@ -86,6 +86,7 @@ public:
 	float gunDamage = 20.f;
 
 private:
+	float lastFireTime = 0.f;
 	bool isReloading = false;
 	bool isFiring = false;
 	FTimerHandle timerHandle;

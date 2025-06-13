@@ -16,30 +16,31 @@ ABaseWeapon::ABaseWeapon()
 
 	audioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	audioComponent->SetupAttachment(RootComponent);
+}
 
-	muzzleFlash = CreateDefaultSubobject<UNiagaraComponent>(TEXT("MuzzleFlash"));
-	muzzleFlash->SetupAttachment(gunMesh);
+void ABaseWeapon::TryFire()
+{
+	float currentTime = GetWorld()->GetTimeSeconds();
+	if (isFiring && currentTime - lastFireTime >= fireRate) {
+		lastFireTime = currentTime;
+		Fire();
+	}
 }
 
 void ABaseWeapon::Fire() 
 {
 	if (isReloading) return;
-	if (currentMagAmmo == 0)
-	{
+	if (currentMagAmmo == 0) {
 		Reload(); 
 		return;
 	}
 
-	isFiring = true;
 	currentMagAmmo--;
-
 	onAmmoChanged.Broadcast(currentMagAmmo, currentStockAmmo);
 
 	APlayerCharacter* owner = GetOwner<APlayerCharacter>();
 	owner->GetMesh()->GetAnimInstance()->Montage_Play(owner->GetIsAiming() ? armAimFire : armFire);
 	gunMesh->GetAnimInstance()->Montage_Play(gunFire);
-
-	//muzzleFlash->Activate(true);
 
 	const FVector start = GetOwner<APlayerCharacter>()->GetCameraComponent()->GetComponentLocation();
 	const FVector end = GetOwner<APlayerCharacter>()->GetCameraComponent()->GetForwardVector() * gunRange + start;
@@ -47,10 +48,8 @@ void ABaseWeapon::Fire()
 	params.AddIgnoredActor(GetOwner<APlayerCharacter>());
 	FHitResult outHit;
 	
-	if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, params)) 
-	{
-		if (ATarget* target = Cast<ATarget>(outHit.GetActor()))
-		{
+	if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, params)) {
+		if (ATarget* target = Cast<ATarget>(outHit.GetActor())) {
 			target->Hit();
 			audioComponent->SetSound(hitmarker);
 			audioComponent->Play();
@@ -60,15 +59,15 @@ void ABaseWeapon::Fire()
 	float decalSize = FMath::FRandRange(1.5f, 7.f);
 	//UGameplayStatics::SpawnDecalAtLocation(GetWorld(), bulletDecal, FVector(decalSize, decalSize, decalSize), outHit.Location, outHit.ImpactNormal.Rotation() * -1, 100.f);
 
-	fullAuto ? GetWorld()->GetTimerManager().SetTimer(timerHandle, this, &ABaseWeapon::Fire, fireRate, false) : StopFire();
-}
+	auto tryFire = [&]() {
+		TryFire();
+	};
 
-void ABaseWeapon::StopFire() 
-{
-	if (isReloading) return;
-	isFiring = false;
-	//muzzleFlash->Deactivate();
-	GetWorld()->GetTimerManager().ClearTimer(timerHandle);
+	if (fullAuto) {
+		FTimerDelegate TimerDel;
+		TimerDel.BindUFunction(this, FName("TryFire"));
+		GetWorld()->GetTimerManager().SetTimer(timerHandle, TimerDel, fireRate, true);
+	} 
 }
 
 void ABaseWeapon::Reload() 
@@ -77,18 +76,14 @@ void ABaseWeapon::Reload()
 		return;
 	}
 
-	if (currentStockAmmo > 0 && currentMagAmmo < maxMagAmmo) 
-	{
-		auto refreshAmmoUI = [&]() 
-		{
+	if (currentStockAmmo > 0 && currentMagAmmo < maxMagAmmo) {
+		auto refreshAmmoUI = [&]() {
 			int amountToAdd = maxMagAmmo - currentMagAmmo;
-			if (currentStockAmmo >= amountToAdd) 
-			{
+			if (currentStockAmmo >= amountToAdd) {
 				currentMagAmmo = maxMagAmmo;
 				currentStockAmmo -= amountToAdd;
 			}
-			else 
-			{
+			else {
 				currentMagAmmo += currentStockAmmo;
 				currentStockAmmo = 0;
 			}

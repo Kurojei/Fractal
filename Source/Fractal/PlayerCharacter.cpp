@@ -78,14 +78,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::Fire()
 {
 	if (currentWeapon) {
-		currentWeapon->Fire();
+		currentWeapon->SetIsFiring(true);
+		currentWeapon->TryFire();
 	}
 }
 
 void APlayerCharacter::StopFire()
 {
 	if (currentWeapon) {
-		currentWeapon->StopFire();
+		currentWeapon->SetIsFiring(false);
 	}
 }
 
