@@ -44,6 +44,14 @@ void APlayerCharacter::BeginPlay()
 	currentWeapon->onAmmoChanged.Broadcast(currentWeapon->maxMagAmmo, currentWeapon->maxStockAmmo);
 }
 
+void APlayerCharacter::Tick(float deltaTime)
+{
+	Super::Tick(deltaTime);
+
+	float targetFOV = isAiming ? 87.f : 95.f;
+	cam->FieldOfView = FMath::FInterpTo(cam->FieldOfView, targetFOV, deltaTime, 10.f);
+}
+
 void APlayerCharacter::SpawnAndAttachWeapon(TSubclassOf<ABaseWeapon> weaponToSpawn) 
 {
 	if (weaponToSpawn) 
@@ -103,6 +111,7 @@ void APlayerCharacter::Reload()
 void APlayerCharacter::StartAiming() 
 {
 	isAiming = true;
+	onAim.Broadcast(isAiming);
 	GetCharacterMovement()->MaxWalkSpeed = 375.f;
 
 }
@@ -110,6 +119,7 @@ void APlayerCharacter::StartAiming()
 void APlayerCharacter::StopAiming()
 {
 	isAiming = false;
+	onAim.Broadcast(isAiming);
 	GetCharacterMovement()->MaxWalkSpeed = 475.f;
 
 }

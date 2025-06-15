@@ -8,6 +8,8 @@
 #include "BaseWeapon.h"
 #include "PlayerCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAim, bool, isAiming);
+
 UCLASS()
 class FRACTAL_API APlayerCharacter : public ACharacter
 {
@@ -16,6 +18,7 @@ class FRACTAL_API APlayerCharacter : public ACharacter
 public:
 	APlayerCharacter();
 	virtual void BeginPlay() override;
+	virtual void Tick(float deltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void StartAiming();
@@ -41,6 +44,9 @@ public:
 	void OnDeath();
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnAim onAim;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<UUserWidget> playerHUDReference = nullptr;
 
