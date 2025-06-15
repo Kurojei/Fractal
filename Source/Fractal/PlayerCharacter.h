@@ -16,7 +16,6 @@ class FRACTAL_API APlayerCharacter : public ACharacter
 public:
 	APlayerCharacter();
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void StartAiming();
@@ -35,10 +34,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetIsAiming() { return isAiming; };
 
+	UFUNCTION(BlueprintCallable)
+	class ABaseWeapon* GetCurrentWeapon() { return currentWeapon; };
+
 	UFUNCTION()
 	void OnDeath();
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSubclassOf<UUserWidget> playerHUDReference = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ABaseWeapon> startingWeapon = nullptr;
 
@@ -71,6 +76,7 @@ public:
 
 private:
 	bool isAiming = false;
+	UUserWidget* playerHUD = nullptr;
 	TArray<ABaseWeapon*> weapons;
 	ABaseWeapon* currentWeapon = nullptr;
 	UCameraComponent* cam = nullptr;

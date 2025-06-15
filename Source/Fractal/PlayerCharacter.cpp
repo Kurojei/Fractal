@@ -5,6 +5,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "HealthComponent.h"
+#include "Blueprint/UserWidget.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -28,12 +29,19 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 	InputSubsystem->AddMappingContext(mappingContext, 0);
 
 	SpawnAndAttachWeapon(startingWeapon);
+
+	if (playerHUDReference) {
+		playerHUD = CreateWidget(GetWorld(), playerHUDReference);
+		playerHUD->AddToViewport();
+	}
+
+	currentWeapon->onAmmoChanged.Broadcast(currentWeapon->maxMagAmmo, currentWeapon->maxStockAmmo);
 }
 
 void APlayerCharacter::SpawnAndAttachWeapon(TSubclassOf<ABaseWeapon> weaponToSpawn) 
@@ -49,12 +57,6 @@ void APlayerCharacter::SpawnAndAttachWeapon(TSubclassOf<ABaseWeapon> weaponToSpa
 			currentWeapon = spawnedWeapon;
 		}
 	}
-}
-
-void APlayerCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

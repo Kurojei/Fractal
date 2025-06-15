@@ -16,6 +16,7 @@ ABaseWeapon::ABaseWeapon()
 
 	audioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	audioComponent->SetupAttachment(RootComponent);
+
 }
 
 void ABaseWeapon::TryFire()
