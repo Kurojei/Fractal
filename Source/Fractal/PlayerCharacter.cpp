@@ -82,7 +82,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		inputComponent->BindAction(fireAction, ETriggerEvent::Started, this, &APlayerCharacter::Fire);
 		inputComponent->BindAction(fireAction, ETriggerEvent::Completed, this, &APlayerCharacter::StopFire);
 		inputComponent->BindAction(reloadAction, ETriggerEvent::Started, this, &APlayerCharacter::Reload);
-		//inputComponent->BindAction(reloadAction, ETriggerEvent::Started, this, );
 	}
 }
 
