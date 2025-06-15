@@ -16,6 +16,7 @@ APlayerCharacter::APlayerCharacter()
 
 	cam = CreateDefaultSubobject<UCameraComponent>(TEXT("Cam"));
 	cam->SetupAttachment(springArm, FName("SpringEndpoint"));
+	cam->SetFieldOfView(95.f);
 
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
 	GetMesh()->SetupAttachment(RootComponent);
@@ -100,14 +101,14 @@ void APlayerCharacter::Reload()
 void APlayerCharacter::StartAiming() 
 {
 	isAiming = true;
-	GetCharacterMovement()->MaxWalkSpeed = 250.f;
+	GetCharacterMovement()->MaxWalkSpeed = 375.f;
 
 }
 
 void APlayerCharacter::StopAiming()
 {
 	isAiming = false;
-	GetCharacterMovement()->MaxWalkSpeed = 350.f;
+	GetCharacterMovement()->MaxWalkSpeed = 475.f;
 
 }
 
