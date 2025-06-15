@@ -54,6 +54,7 @@ void ABaseWeapon::Fire()
 			target->Hit();
 			audioComponent->SetSound(hitmarker);
 			audioComponent->Play();
+			owner->AddScore(1);
 		}
 	}
 
@@ -71,26 +72,34 @@ void ABaseWeapon::Reload()
 		return;
 	}
 
-	if (currentStockAmmo > 0 && currentMagAmmo < maxMagAmmo) {
-		auto refreshAmmoUI = [&]() {
-			int amountToAdd = maxMagAmmo - currentMagAmmo;
-			if (currentStockAmmo >= amountToAdd) {
-				currentMagAmmo = maxMagAmmo;
-				currentStockAmmo -= amountToAdd;
-			}
-			else {
-				currentMagAmmo += currentStockAmmo;
-				currentStockAmmo = 0;
-			}
+	if (currentMagAmmo < maxMagAmmo) {
+		if (currentStockAmmo > 0) {
+			auto refreshAmmoUI = [&]() {
+				int amountToAdd = maxMagAmmo - currentMagAmmo;
+				if (currentStockAmmo >= amountToAdd) {
+					currentMagAmmo = maxMagAmmo;
+					currentStockAmmo -= amountToAdd;
+				}
+				else {
+					currentMagAmmo += currentStockAmmo;
+					currentStockAmmo = 0;
+				}
 
+				isReloading = false;
+				onAmmoChanged.Broadcast(currentMagAmmo, currentStockAmmo);
+				GetWorld()->GetTimerManager().ClearTimer(timerHandle);
+			};
+
+			isReloading = true;
+			GetOwner<APlayerCharacter>()->GetMesh()->GetAnimInstance()->Montage_Play(armReload);
+			gunMesh->GetAnimInstance()->Montage_Play(gunReload);
+			GetWorld()->GetTimerManager().SetTimer(timerHandle, refreshAmmoUI, armReload->GetPlayLength(), false);
+		}
+		else if (currentMagAmmo == 0) {
+			currentMagAmmo = maxMagAmmo;
+			currentStockAmmo = maxStockAmmo;
 			isReloading = false;
 			onAmmoChanged.Broadcast(currentMagAmmo, currentStockAmmo);
-			GetWorld()->GetTimerManager().ClearTimer(timerHandle);
-		};
-
-		isReloading = true;
-		GetOwner<APlayerCharacter>()->GetMesh()->GetAnimInstance()->Montage_Play(armReload);
-		gunMesh->GetAnimInstance()->Montage_Play(gunReload);
-		GetWorld()->GetTimerManager().SetTimer(timerHandle, refreshAmmoUI, armReload->GetPlayLength(), false);
+		}
 	}
 }

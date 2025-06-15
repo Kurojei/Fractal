@@ -9,6 +9,7 @@
 #include "PlayerCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAim, bool, isAiming);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreIncreased, int, newScore);
 
 UCLASS()
 class FRACTAL_API APlayerCharacter : public ACharacter
@@ -27,12 +28,14 @@ public:
 	void StopFire();
 	void Reload();
 	void SpawnAndAttachWeapon(TSubclassOf<ABaseWeapon> weaponToSpawn);
+	void AddScore(int scoreToAdd);
 
 	void Move(const FInputActionValue& value);
 	void Look(const FInputActionValue& value);
 
 	class UHealthComponent* GetHealthComponent() { return healthComponent; };
 	class UCameraComponent* GetCameraComponent() { return cam; };
+
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIsAiming() { return isAiming; };
@@ -46,6 +49,9 @@ public:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAim onAim;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnScoreIncreased onScoreIncreased;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<UUserWidget> playerHUDReference = nullptr;
@@ -81,6 +87,7 @@ public:
 	float lookSensitivity = 1;
 
 private:
+	int score = 0;
 	bool isAiming = false;
 	UUserWidget* playerHUD = nullptr;
 	TArray<ABaseWeapon*> weapons;

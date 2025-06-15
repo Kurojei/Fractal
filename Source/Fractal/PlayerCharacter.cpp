@@ -85,6 +85,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
+void APlayerCharacter::AddScore(int scoreToAdd)
+{
+	score += scoreToAdd;
+	onScoreIncreased.Broadcast(score);
+}
+
 void APlayerCharacter::Fire()
 {
 	if (currentWeapon) {
